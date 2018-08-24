@@ -163,9 +163,11 @@ const image = document.createElement('img');
 image.className = 'restaurant-img';
 image.alt = 'Restaurant';
 image.src = DBHelper.imageUrlForRestaurant(restaurant);
+image.setAttribute('tabindex', '0');
+image.setAttribute('alt','image belongs to ' + restaurant.name + 'restaurant')
 li.append(image);
 
-const name = document.createElement('h1');
+const name = document.createElement('h3');
 name.innerHTML = restaurant.name;
 li.append(name);
 
