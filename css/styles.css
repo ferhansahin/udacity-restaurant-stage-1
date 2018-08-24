@@ -393,6 +393,7 @@ label {
 
 /* Responsive Query */
 
+
 @media only screen and (max-width: 600px) {
   .inside {
     display: flex;

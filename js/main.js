@@ -1,4 +1,3 @@
-
 let restaurants,
 neighborhoods,
 cuisines
@@ -9,11 +8,22 @@ var markers = []
 * Fetch neighborhoods and cuisines as soon as the page is loaded.
 */
 document.addEventListener('DOMContentLoaded', (event) => {
-initMap(); // added
+
 fetchNeighborhoods();
+
 fetchCuisines();
 });
 
+/*
+// he Service Worker 
+if (navigator.serviceWorker) {
+  navigator.serviceWorker.register('/sw.js').then(function() {
+    console.log('Service Worker Registered :)');
+  }).catch(function() {
+    console.log('Service Worker Registration FAILED!');
+  });
+}
+*/
 /**
 * Fetch all neighborhoods and set their HTML.
 */
@@ -79,7 +89,7 @@ self.newMap = L.map('map', {
       scrollWheelZoom: false
     });
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
-  mapboxToken: 'pk.eyJ1IjoiY29kaW5ncXVlZW45NSIsImEiOiJjamoxOW51MXIwbzdnM3BtaDVvYzJxcGNkIn0.DtsHGtbkyMJT-teGuqDGxg',
+  mapboxToken: 'pk.eyJ1IjoiZmVyaGFuc2FoaW4iLCJhIjoiY2psODVhYzB0MGllNTN2dDdsM3MydXV2MSJ9.LAfoLkDE-kCJr862LM1hFw',
   maxZoom: 18,
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
     '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
@@ -177,11 +187,13 @@ li.append(neighborhood);
 
 const address = document.createElement('p');
 address.innerHTML = restaurant.address;
+address.setAttribute('tabindex', '0');
 li.append(address);
 
 const more = document.createElement('a');
 more.innerHTML = 'View Details';
 more.href = DBHelper.urlForRestaurant(restaurant);
+more.setAttribute('tabindex', '0');
 li.append(more)
 
 return li
@@ -202,4 +214,7 @@ restaurants.forEach(restaurant => {
 });
 
 }
+
+
+
 
