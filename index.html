@@ -15,17 +15,17 @@
     </nav>
   </header>
 
-  <main id="maincontent">
-    <section id="map-container">
-      <div id="map"></div>
+  <main id="maincontent"> 
+    <section id="map-container" aria-labelledby="map">
+      <div id="map" role='application' aria-label='location'></div>
     </section>
-    <section>
+    <section  id="skip-to-content" tabindex="-1" aria-labelledby="filter" title="filter-results" >
       <div class="filter-options">
         <h2>Filter Results</h2>
-        <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
+        <select id="neighborhoods-select" name="neighborhoods" aria-label='neighborhoods-select' onchange="updateRestaurants()">
           <option value="all">All Neighborhoods</option>
         </select>
-        <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
+        <select id="cuisines-select" name="cuisines" aria-label='cuisines-select' onchange="updateRestaurants()">
           <option value="all">All Cuisines</option>
         </select>
       </div>
@@ -40,7 +40,7 @@
   <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMap"></script> -->
 
 
-  <footer id="footer">
+  <footer id="footer" aria-label="Footer">
     Copyright (c) 2017 <a href="/"><strong>Restaurant Reviews</strong></a> All Rights Reserved.
   </footer>
 
