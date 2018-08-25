@@ -1,196 +1,120 @@
-let restaurant;
-var newMap;
+// Set a name for the current cache
+var cacheName = 'restaurant'; 
 
-/**
- * Initialize map as soon as the page is loaded.
- */
-document.addEventListener('DOMContentLoaded', (event) => {
-  initMap();
+// Default files to always cache
+var cacheFiles = [
+    './',
+    './index.html',
+    './restaurant.html',
+    './css/styles.css',
+    './js/main.js',
+    './js/restaurant_info.js',
+    './js/dbhelper.js',
+    './js/serviceworker-register.js',
+    './data/restaurants.json',
+    './img/1.jpg',
+    './img/2.jpg',
+    './img/3.jpg',
+    './img/4.jpg',
+    './img/5.jpg',
+    './img/6.jpg',
+    './img/7.jpg',
+    './img/8.jpg',
+    './img/9.jpg',
+  './img/10.jpg',
+]
+
+
+self.addEventListener('install', function(event) {
+    console.log('[ServiceWorker] Installed');
+
+    // e.waitUntil Delays the event until the Promise is resolved
+    event.waitUntil(
+
+    	// Open the cache
+	    caches.open(cacheName).then(function(cache) {
+
+	    	// Add all the default files to the cache
+			console.log('[ServiceWorker] Caching cacheFiles');
+			return cache.addAll(cacheFiles);
+	    })
+	); // end e.waitUntil
 });
 
-/**
- * Initialize leaflet map
- */
-initMap = () => {
-  fetchRestaurantFromURL((error, restaurant) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
-      self.newMap = L.map('map', {
-        center: [restaurant.latlng.lat, restaurant.latlng.lng],
-        zoom: 16,
-        scrollWheelZoom: false
-      });
-      L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.jpg70?access_token={mapboxToken}', {
-        mapboxToken: 'pk.eyJ1IjoiZmVyaGFuc2FoaW4iLCJhIjoiY2psODZ6eTdjMWZyZjN4cGJsOWR3NjZiZCJ9.vE2vOmLVPPOAbA4Z-HHDPA',
-        maxZoom: 18,
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-          '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-          'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        id: 'mapbox.streets'
-      }).addTo(newMap);
-      fillBreadcrumb();
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
-    }
-  });
-}
 
-/* window.initMap = () => {
-  fetchRestaurantFromURL((error, restaurant) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
-      self.map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 16,
-        center: restaurant.latlng,
-        scrollwheel: false
-      });
-      fillBreadcrumb();
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
-    }
-  });
-} */
+self.addEventListener('activate', function(event) {
+    console.log('[ServiceWorker] Activated');
 
-/**
- * Get current restaurant from page URL.
- */
-fetchRestaurantFromURL = (callback) => {
-  if (self.restaurant) { // restaurant already fetched!
-    callback(null, self.restaurant)
-    return;
-  }
-  const id = getParameterByName('id');
-  if (!id) { // no id found in URL
-    error = 'No restaurant id in URL'
-    callback(error, null);
-  } else {
-    DBHelper.fetchRestaurantById(id, (error, restaurant) => {
-      self.restaurant = restaurant;
-      if (!restaurant) {
-        console.error(error);
-        return;
-      }
-      fillRestaurantHTML();
-      callback(null, restaurant)
-    });
-  }
-}
+    event.waitUntil(
 
-/**
- * Create restaurant HTML and add it to the webpage
- */
-fillRestaurantHTML = (restaurant = self.restaurant) => {
-  const name = document.getElementById('restaurant-name');
-  name.innerHTML = restaurant.name;
+    	// Get all the cache keys (cacheName)
+		caches.keys().then(function(cacheNames) {
+			return Promise.all(cacheNames.map(function(thisCacheName) {
 
-  const address = document.getElementById('restaurant-address');
-  address.innerHTML = restaurant.address;
+				// If a cached item is saved under a previous cacheName
+				if (thisCacheName !== cacheName) {
 
-  const image = document.getElementById('restaurant-img');
-  image.className = 'restaurant-img';
-  image.alt = 'Restaurant';
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
+					// Delete that cached file
+					console.log('[ServiceWorker] Removing Cached Files from Cache - ', thisCacheName);
+					return caches.delete(thisCacheName);
+				}
+			}));
+		})
+	); // end e.waitUntil
 
-  const cuisine = document.getElementById('restaurant-cuisine');
-  cuisine.innerHTML = restaurant.cuisine_type;
+});
 
-  // fill operating hours
-  if (restaurant.operating_hours) {
-    fillRestaurantHoursHTML();
-  }
-  // fill reviews
-  fillReviewsHTML();
-}
 
-/**
- * Create restaurant operating hours HTML table and add it to the webpage.
- */
-fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
-  const hours = document.getElementById('restaurant-hours');
-  for (let key in operatingHours) {
-    const row = document.createElement('tr');
+self.addEventListener('fetch', function(event) {
+	console.log('[ServiceWorker] Fetch', e.request.url);
 
-    const day = document.createElement('td');
-    day.innerHTML = key;
-    row.appendChild(day);
+	// e.respondWidth Responds to the fetch event
+	event.respondWith(
 
-    const time = document.createElement('td');
-    time.innerHTML = operatingHours[key];
-    row.appendChild(time);
+		// Check in cache for the request being made
+		caches.match(event.request)
 
-    hours.appendChild(row);
-  }
-}
 
-/**
- * Create all reviews HTML and add them to the webpage.
- */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
-  const container = document.getElementById('reviews-container');
-  const title = document.createElement('h2');
-  title.innerHTML = 'Reviews';
-  container.appendChild(title);
+			.then(function(response) {
 
-  if (!reviews) {
-    const noReviews = document.createElement('p');
-    noReviews.innerHTML = 'No reviews yet!';
-    container.appendChild(noReviews);
-    return;
-  }
-  const ul = document.getElementById('reviews-list');
-  reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review));
-  });
-  container.appendChild(ul);
-}
+				// If the request is in the cache
+				if ( response ) {
+					console.log("[ServiceWorker] Found in Cache", e.request.url, response);
+					// Return the cached version
+					return response;
+				}
 
-/**
- * Create review HTML and add it to the webpage.
- */
-createReviewHTML = (review) => {
-  const li = document.createElement('li');
-  const name = document.createElement('p');
-  name.innerHTML = review.name;
-  li.appendChild(name);
+				// If the request is NOT in the cache, fetch and cache
 
-  const date = document.createElement('p');
-  date.innerHTML = review.date;
-  li.appendChild(date);
+				var requestClone = event.request.clone();
+				return fetch(requestClone)
+					.then(function(response) {
 
-  const rating = document.createElement('p');
-  rating.innerHTML = `Rating: ${review.rating}`;
-  li.appendChild(rating);
+						if ( !response ) {
+							console.log("[ServiceWorker] No response from fetch ")
+							return response;
+						}
 
-  const comments = document.createElement('p');
-  comments.innerHTML = review.comments;
-  li.appendChild(comments);
+						var responseClone = response.clone();
 
-  return li;
-}
+						//  Open the cache
+						caches.open(cacheName).then(function(cache) {
 
-/**
- * Add restaurant name to the breadcrumb navigation menu
- */
-fillBreadcrumb = (restaurant=self.restaurant) => {
-  const breadcrumb = document.getElementById('breadcrumb');
-  const li = document.createElement('li');
-  li.innerHTML = restaurant.name;
-  breadcrumb.appendChild(li);
-}
+							// Put the fetched response in the cache
+							cache.put(event.request, responseClone);
+							console.log('[ServiceWorker] New Data Cached', event.request.url);
 
-/**
- * Get a parameter by name from page URL.
- */
-getParameterByName = (name, url) => {
-  if (!url)
-    url = window.location.href;
-  name = name.replace(/[\[\]]/g, '\\$&');
-  const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`),
-    results = regex.exec(url);
-  if (!results)
-    return null;
-  if (!results[2])
-    return '';
-  return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
+							// Return the response
+							return response;
+			
+				        }); // end caches.open
 
+					})
+					.catch(function(err) {
+						console.log('[ServiceWorker] Error Fetching & Caching New Data', err);
+					});
+
+
+			}) // end caches.match(e.request)
+	); // end e.respondWith
+});

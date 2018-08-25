@@ -4,13 +4,14 @@ var cacheName = 'restaurant';
 // Default files to always cache
 var cacheFiles = [
     './',
-    './index.html',
+	'./index.html',
+	'./service-worker.js',
     './restaurant.html',
     './css/styles.css',
     './js/main.js',
     './js/restaurant_info.js',
     './js/dbhelper.js',
-    './js/serviceworker-register.js',
+    './js/service-worker.js',
     './data/restaurants.json',
     './img/1.jpg',
     './img/2.jpg',
@@ -21,15 +22,15 @@ var cacheFiles = [
     './img/7.jpg',
     './img/8.jpg',
     './img/9.jpg',
-  './img/10.jpg',
+    './img/10.jpg',
 ]
 
 
-self.addEventListener('install', function(event) {
+self.addEventListener('install', function(e) {
     console.log('[ServiceWorker] Installed');
 
     // e.waitUntil Delays the event until the Promise is resolved
-    event.waitUntil(
+    e.waitUntil(
 
     	// Open the cache
 	    caches.open(cacheName).then(function(cache) {
@@ -42,10 +43,10 @@ self.addEventListener('install', function(event) {
 });
 
 
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', function(e) {
     console.log('[ServiceWorker] Activated');
 
-    event.waitUntil(
+    e.waitUntil(
 
     	// Get all the cache keys (cacheName)
 		caches.keys().then(function(cacheNames) {
@@ -65,14 +66,14 @@ self.addEventListener('activate', function(event) {
 });
 
 
-self.addEventListener('fetch', function(event) {
+self.addEventListener('fetch', function(e) {
 	console.log('[ServiceWorker] Fetch', e.request.url);
 
 	// e.respondWidth Responds to the fetch event
-	event.respondWith(
+	e.respondWith(
 
 		// Check in cache for the request being made
-		caches.match(event.request)
+		caches.match(e.request)
 
 
 			.then(function(response) {
@@ -86,7 +87,7 @@ self.addEventListener('fetch', function(event) {
 
 				// If the request is NOT in the cache, fetch and cache
 
-				var requestClone = event.request.clone();
+				var requestClone = e.request.clone();
 				return fetch(requestClone)
 					.then(function(response) {
 
@@ -101,8 +102,8 @@ self.addEventListener('fetch', function(event) {
 						caches.open(cacheName).then(function(cache) {
 
 							// Put the fetched response in the cache
-							cache.put(event.request, responseClone);
-							console.log('[ServiceWorker] New Data Cached', event.request.url);
+							cache.put(e.request, responseClone);
+							console.log('[ServiceWorker] New Data Cached', e.request.url);
 
 							// Return the response
 							return response;
