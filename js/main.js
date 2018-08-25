@@ -171,10 +171,9 @@ const li = document.createElement('li');
 
 const image = document.createElement('img');
 image.className = 'restaurant-img';
-image.alt = 'Restaurant';
+image.alt = 'image for' + restaurant.name + 'restaurant that you like'
 image.src = DBHelper.imageUrlForRestaurant(restaurant);
 image.setAttribute('tabindex', '0');
-image.setAttribute('alt','image belongs to ' + restaurant.name + 'restaurant')
 li.append(image);
 
 const name = document.createElement('h3');
