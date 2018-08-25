@@ -11,7 +11,7 @@ var cacheFiles = [
     './js/main.js',
     './js/restaurant_info.js',
     './js/dbhelper.js',
-    './js/service-worker.js',
+    './js/serviceworker-register.js',
     './data/restaurants.json',
     './img/1.jpg',
     './img/2.jpg',

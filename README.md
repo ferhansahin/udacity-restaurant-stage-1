@@ -12,7 +12,7 @@ You have been provided with the code for a restaurant reviews website. Your job 
 
 To run the project, download or clone the repository in your computer:
 
-$ git clone 
+$ git clone https://github.com/ferhansahin/udacity-restaurant-stage-1.git
 
 and follow the instructions below:
 
